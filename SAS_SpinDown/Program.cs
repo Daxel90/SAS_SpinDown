@@ -20,6 +20,30 @@
         }
         else if(args[0] == "AUTO")
         {
+          int SleepTimeMin = 10;
+
+          if (args.Length > 1)
+          {
+            try
+            {
+              SleepTimeMin = Int32.Parse(args[1]);
+            }
+            catch (Exception ex)
+            {
+              Console.WriteLine(ex.ToString());
+            }
+          }
+
+          Console.WriteLine($"Automatic SpinDown after {SleepTimeMin} min of inactivity");
+
+          while (true)
+          {
+            DisksManager.UpdateDiskStats();
+            DisksManager.SpinDownForInactivity(SleepTimeMin);
+
+            //Update every Min
+            Thread.Sleep(1000 * 60);
+          }
 
         }
         else if(args[0] == "STATUS")

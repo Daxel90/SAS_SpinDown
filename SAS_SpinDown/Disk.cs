@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
@@ -20,6 +21,9 @@ namespace SAS_SpinDown
     //Status
     int Temperature = 0;
     bool IsInStandby = false;
+    string LastStat = "";
+    Stopwatch LastStatChange = new Stopwatch();
+
 
     public Disk(string pSgName, string pSdName)
     {
@@ -43,8 +47,6 @@ namespace SAS_SpinDown
           }
         }
       }
-
-
     }
 
     public void SetDiskStandby()
@@ -75,6 +77,25 @@ namespace SAS_SpinDown
     {
       return string.Format("{0,-6} {1,-6} {2,-6} {3,-12} {4,-12} {5,-4}C", SgName, SdName, Label, MountPoint, IsInStandby ? "STANDBY" : "ON", IsInStandby ? "-" : Temperature.ToString());
     }
+    
+    public void UpdateStat(string pNewStat)
+    {
+      if(LastStat != pNewStat)
+      {
+        LastStatChange.Restart();
+        LastStat = pNewStat;
+      }
+    }
 
+    public bool HaveToSpinDownForInactivity(int pMinute)
+    {
+      if(LastStatChange.IsRunning && LastStatChange.ElapsedMilliseconds > (pMinute * 60 * 1000))
+      {
+        LastStatChange.Stop();
+        return true;
+      }
+
+      return false;
+    }
   }
 }

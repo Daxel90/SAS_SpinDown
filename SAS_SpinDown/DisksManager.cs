@@ -99,5 +99,42 @@ namespace SAS_SpinDown
       }
     }
 
+    public static void UpdateDiskStats()
+    {
+      string Result = LinuxConsole.SendCommand("cat /proc/diskstats");
+
+      foreach (string line in Result.Split("\n"))
+      {
+        string FixedLine = line.Replace("  ", " ").Trim();
+
+        while(FixedLine.Contains("  "))
+          FixedLine = FixedLine.Replace("  ", " ");
+
+        if(!String.IsNullOrEmpty(FixedLine))
+        {
+          string[] Pieces = FixedLine.Split(" ");
+
+          if (DiskList.ContainsKey(Pieces[2]))
+          {
+            DiskList[Pieces[2]].UpdateStat(line);
+          }
+        }
+      }
+    }
+
+    public static void SpinDownForInactivity(int pInactivityMin)
+    {
+      foreach (KeyValuePair<string, Disk> Disk in DiskList)
+      {
+        bool SpinDown = Disk.Value.HaveToSpinDownForInactivity(pInactivityMin);
+
+        if (SpinDown)
+        {
+          Console.Write(DateTime.Now.ToString() + " ");
+          Disk.Value.SetDiskStandby();
+        }
+      }
+    }
+
   }
 }
