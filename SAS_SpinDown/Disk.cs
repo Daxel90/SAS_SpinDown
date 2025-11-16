@@ -15,6 +15,7 @@ namespace SAS_SpinDown
 
     public string MountPoint = "";
     public string Label = "";
+    public bool IsTargetDisk = false;
 
     //Status
     int Temperature = 0;
@@ -68,11 +69,6 @@ namespace SAS_SpinDown
         return true;
       else
         return false;
-    }
-
-    public bool isTargetDisk()
-    {
-      return !String.IsNullOrEmpty(SgName) && !String.IsNullOrEmpty(SdName) && !String.IsNullOrEmpty(MountPoint) && !String.IsNullOrEmpty(Label);
     }
 
     public override string ToString()

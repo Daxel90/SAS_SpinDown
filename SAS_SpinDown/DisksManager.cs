@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -25,16 +26,13 @@ namespace SAS_SpinDown
           string SgDisk = line.Split(" ")[0].Trim().Replace("/dev/", "");
           string SdDisk = line.Split(" ")[2].Trim().Replace("/dev/","");
 
-          //Console.WriteLine($"Disk Found: {SgDisk} -> {SdDisk}");
-
           DiskList[SdDisk] = new Disk(SgDisk,SdDisk);
         }
       }
 
       //search for mount folder
-
       string listMountJson = LinuxConsole.SendCommand("lsblk -J -o NAME,LABEL,MOUNTPOINT");
-      //Console.WriteLine($"Json:{listMountJson}");
+
 
       JObject root = JObject.Parse(listMountJson);
       JArray devices = (JArray)root["blockdevices"];
@@ -42,7 +40,7 @@ namespace SAS_SpinDown
       foreach (JToken device in devices)
       {
         string name = device["name"] != null ? device["name"].ToString() : "";
-        //Console.WriteLine($"Name:{name}");
+
         if (DiskList.ContainsKey(name))
         {
           JToken children = device["children"];
@@ -50,21 +48,20 @@ namespace SAS_SpinDown
           foreach (JToken child in (JArray)children)
           {
             string childname = child["name"] != null ? child["name"].ToString() : "";
-            //Console.WriteLine($"childname:{childname}");
-            if (childname == name + "1")
-            {
-              string mountpoint = child["mountpoint"] != null ? child["mountpoint"].ToString() : "";
-              string label = child["label"] != null ? child["label"].ToString() : "";
+            string mountpoint = child["mountpoint"] != null ? child["mountpoint"].ToString() : "";
+            string label = child["label"] != null ? child["label"].ToString() : "";
 
-              if (mountpoint.StartsWith("/mnt/"))
-              {
-                DiskList[name].MountPoint = mountpoint;
-                DiskList[name].Label = label;
+            if (!String.IsNullOrEmpty(mountpoint))
+              DiskList[name].MountPoint += mountpoint+",";
 
-                //Console.WriteLine($"Disk Data: {name}:{label} {mountpoint}");
-              }
-            }
+            if (!String.IsNullOrEmpty(label))
+              DiskList[name].Label += label + ",";
           }
+
+          DiskList[name].MountPoint = DiskList[name].MountPoint.TrimEnd(',');
+          DiskList[name].Label = DiskList[name].Label.TrimEnd(',');
+
+          DiskList[name].IsTargetDisk = Boolean.Parse(Config.GetConfig(name,true.ToString()));
         }
       }
 
@@ -72,7 +69,7 @@ namespace SAS_SpinDown
       List<string> tmp = DiskList.Keys.ToList();
       foreach(string key in tmp)
       {
-        if (!DiskList[key].isTargetDisk())
+        if (!DiskList[key].IsTargetDisk)
           DiskList.Remove(key);
       }
     }
