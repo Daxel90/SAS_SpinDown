@@ -16,17 +16,20 @@ namespace SAS_SpinDown
     /// </summary>
     public static void LoadConfig()
     {
-      string[] lines = File.ReadAllLines(ConfigPath);
-
-      foreach (string line in lines)
+      if(File.Exists(ConfigPath))
       {
-        string CleanLine = line.Trim();
+        string[] lines = File.ReadAllLines(ConfigPath);
 
-        if(!CleanLine.StartsWith("#") && CleanLine.Contains("="))
+        foreach (string line in lines)
         {
-          string[] field = CleanLine.Split('=',2);
+          string CleanLine = line.Trim();
 
-          ConfigFields[field[0].Trim()] = field[1].Trim();
+          if (!CleanLine.StartsWith("#") && CleanLine.Contains("="))
+          {
+            string[] field = CleanLine.Split('=', 2);
+
+            ConfigFields[field[0].Trim()] = field[1].Trim();
+          }
         }
       }
     }

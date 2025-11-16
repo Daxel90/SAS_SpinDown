@@ -52,7 +52,7 @@
         }
         else
         {
-          Console.WriteLine("SAS_SpinDown 1.00 Usage:");
+          Console.WriteLine("SAS_SpinDown 1.01 Usage:");
           Console.WriteLine("'SAS_SpinDown STATUS' to see disks status");
           Console.WriteLine("'SAS_SpinDown OFF' Standby all disks");
           Console.WriteLine("'SAS_SpinDown ON' PowerOn all disks");
@@ -61,7 +61,7 @@
       }
       else
       {
-        Console.WriteLine("SAS_SpinDown 1.00 Usage:");
+        Console.WriteLine("SAS_SpinDown 1.01 Usage:");
         Console.WriteLine("'SAS_SpinDown STATUS' to see disks status");
         Console.WriteLine("'SAS_SpinDown OFF' Standby all disks");
         Console.WriteLine("'SAS_SpinDown ON' PowerOn all disks");
